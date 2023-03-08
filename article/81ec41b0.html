@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="zh_CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>Nginx经验积累 | A二十一画</title><meta name="author" content="A二十一画"><meta name="copyright" content="A二十一画"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="正向代理问题：Nginx代理日志中出现十六进制问题描述​    因公司内网环境导致部分系统对外请求需要走Nginx正向代理来完成对外网请求。​    公司蓝鲸项目因其需要访问阿里压测(pts.aliyuncs.com)，当配置完成Nginx正向代理之后，并使用curl -I --proxy xxx:xxx:xxx:xxx:port http:&#x2F;&#x2F;pts.aliyuncs.com测试，返回200 O">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx经验积累">
+<meta property="og:url" content="https://t-fx.github.io/article/81ec41b0.html">
+<meta property="og:site_name" content="A二十一画">
+<meta property="og:description" content="正向代理问题：Nginx代理日志中出现十六进制问题描述​    因公司内网环境导致部分系统对外请求需要走Nginx正向代理来完成对外网请求。​    公司蓝鲸项目因其需要访问阿里压测(pts.aliyuncs.com)，当配置完成Nginx正向代理之后，并使用curl -I --proxy xxx:xxx:xxx:xxx:port http:&#x2F;&#x2F;pts.aliyuncs.com测试，返回200 O">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://only-picture.oss-cn-beijing.aliyuncs.com/images/hexo-favicon.jpg">
+<meta property="article:published_time" content="2023-03-02T07:23:51.000Z">
+<meta property="article:modified_time" content="2023-03-02T07:47:34.340Z">
+<meta property="article:author" content="A二十一画">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://only-picture.oss-cn-beijing.aliyuncs.com/images/hexo-favicon.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://t-fx.github.io/article/81ec41b0.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Nginx经验积累',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-03-02 15:47:34'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.2"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://only-picture.oss-cn-beijing.aliyuncs.com/images/hexo-favicon.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page" href="/%E5%88%86%E7%B1%BB"><i class="fa-fw fas fa-camera-retro"></i><span> 分类</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="A二十一画"><span class="site-name">A二十一画</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page" href="/%E5%88%86%E7%B1%BB"><i class="fa-fw fas fa-camera-retro"></i><span> 分类</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Nginx经验积累</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">创建时间</span><time class="post-meta-date-created" datetime="2023-03-02T07:23:51.000Z" title="创建时间 2023-03-02 15:23:51">2023-03-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新时间</span><time class="post-meta-date-updated" datetime="2023-03-02T07:47:34.340Z" title="更新时间 2023-03-02 15:47:34">2023-03-02</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Nginx经验积累"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="正向代理"><a href="#正向代理" class="headerlink" title="正向代理"></a><strong>正向代理</strong></h1><h2 id="问题：Nginx代理日志中出现十六进制"><a href="#问题：Nginx代理日志中出现十六进制" class="headerlink" title="问题：Nginx代理日志中出现十六进制"></a><strong>问题：Nginx代理日志中出现十六进制</strong></h2><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a><strong>问题描述</strong></h3><p>​    因公司内网环境导致部分系统对外请求需要走Nginx正向代理来完成对外网请求。<br>​    公司蓝鲸项目因其需要访问阿里压测(pts.aliyuncs.com)，当配置完成Nginx正向代理之后，并使用<code>curl -I --proxy xxx:xxx:xxx:xxx:port http://pts.aliyuncs.com</code>测试，返回<code>200 OK</code>状态码。但是在需求方使用过程中反馈不能正常通网。</p>
+<h3 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a><strong>排查过程</strong></h3><p>​    1、当出现问题是，第一时间去查看nginx日志：<br>​        – 在error.log中搜索目标地址 -&gt; <code>tail -1000f error.log | grep &#39;pts.aliyuncs.com&#39;</code>，但是没有搜索到相关信息；<br>​        – 在access.log中搜索目标地址 -&gt;<code>tail -1000f access.log | grep &#39;pts.aliyuncs.com&#39;</code>，依然没有搜索到相关信息；<br>​        – 在access.log中搜索请求地址 -&gt; <code>tail -1000f access.log | grep &#39;xxx.xxx.xxx.xxx&#39;</code>，搜索到以下内容</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xxx.xxx.xxx.xxx - - [27/Sep/2022:13:31:52 +0800] &quot;\x16\x03\x03\x00\xCD\x01\x00\x00\xC9\x03\x03\xEB\xCB\x9E\xECfx\x13\xB0s\xE7o\x9E\xC74\xA9O\xFC22\xA9|\x99\xD1\xFF\xDD\x1F%.\x05W\xFC\x19\x00\x00\x14\xC0,\xC0+\xC00\x00\x9D\xC0/\x00\x9C\xC0\x14\x005\xC0\x13\x00/\x01\x00\x00\x8C\x00&quot; 400 157 &quot;-&quot; &quot;-&quot;</span><br><span class="line">xxx.xxx.xxx.xxx - - [27/Sep/2022:13:47:28 +0800] &quot;\x16\x03\x03\x00\xCD\x01\x00\x00\xC9\x03\x03T\xD3\xD79Q\x1E?\xAE\xD5\xA7\xC9:XD\x03\xF0tn\x16q\xCB\xED\xF4\xC6\x98\x89\xE7\xAF;\x05\xA1Y\x00\x00\x14\xC0,\xC0+\xC00\x00\x9D\xC0/\x00\x9C\xC0\x14\x005\xC0\x13\x00/\x01\x00\x00\x8C\x00&quot; 400 157 &quot;-&quot; &quot;-&quot;</span><br></pre></td></tr></table></figure>
+
+<p>​    2、因日志中输出的十六进制无法获取有用的信息，所以在请求机上使用<code>curl -I --proxy xxx:xxx:xxx:xxx:port http://pts.aliyuncs.com</code>来测试，结果同样返回<code>200 OK</code>状态码。因此判定代理可正常通网；<br>​    3、排除代理的问题，只能说明是调用方式的问题，联系需求方，调用方式是在代码里直接将代理地址替换了原始的URL，同时对请求进行抓包(<code>tcpdump -i eth0 port 3333</code>)，抓包内容如下所示<img src="https://only-picture.oss-cn-beijing.aliyuncs.com/images/202209281723360.png" alt="image-20220928172346233"></p>
+<p>从抓包情况来看结合需求方反馈情况来说，代码里的调用方式为<code>https://代理地址:代理端口</code>，但是相对于代理来说，这显然不是一个正确的使用方式。</p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a><strong>解决方法</strong></h3><p>​    解决方式主要是看需求方在代码里调整，以下是代理修改后，可正常使用的方式<img src="https://only-picture.oss-cn-beijing.aliyuncs.com/images/202209290908028.png" alt="image-20220929090827953"></p>
+<hr>
+<h2 id="问题：代理Pypi源无法安装Python模块"><a href="#问题：代理Pypi源无法安装Python模块" class="headerlink" title="问题：代理Pypi源无法安装Python模块"></a><strong>问题：代理Pypi源无法安装Python模块</strong></h2><h3 id="问题描述-1"><a href="#问题描述-1" class="headerlink" title="问题描述"></a><strong>问题描述</strong></h3><p>应项目方要求，在Nginx上配置代理，代理内网地址从阿里的Pypi上安装模块。但是项目方反馈无法拉取，显示以下报错</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2022/09/05 16:31:39 [error] 29079#0: *495 proxy_connect: upstream connect failed (111: Connection refused) while connecting to upstream, client: xxx.xxx.xxx.xxx,server: , request: &quot;CONNECT mirrors.aliyun.com:443 HTTP/1.0&quot;</span><br></pre></td></tr></table></figure>
+
+<p>上游服务器连接超时。</p>
+<h3 id="排查过程-1"><a href="#排查过程-1" class="headerlink" title="排查过程"></a><strong>排查过程</strong></h3><p>​    1、一开始怀疑是proxy_send的时间过短，所以修改以下参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">... # 原始</span><br><span class="line">         proxy_buffers 256 4k;</span><br><span class="line">         proxy_max_temp_file_size 0k;</span><br><span class="line">         proxy_connect_timeout 60;</span><br><span class="line">         proxy_send_timeout 60;</span><br><span class="line">         proxy_read_timeout 60;</span><br><span class="line">...</span><br><span class="line">... # 修改后</span><br><span class="line">         send_timeout  600s;</span><br><span class="line">         proxy_buffers 256 4k;</span><br><span class="line">         proxy_max_temp_file_size 0k;</span><br><span class="line">         proxy_connect_timeout 600;</span><br><span class="line">         proxy_send_timeout 600;</span><br><span class="line">         proxy_read_timeout 600;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>​    2、后来怀疑是因为拉取时的时间过长，导致连接时间过短连接被断，所以在配置文件中添加了设置长链接的参数；</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">proxy_set_header</span> <span class="string">Connection</span> <span class="string">&quot;&quot;</span><span class="string">;</span></span><br></pre></td></tr></table></figure>
+
+<p>​    3、以上两个参数配置后都无法解决问题；<br>​    4、经和项目方沟通，通过curl -I -L 目标地址，然后查看nginx的Error日志</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2022/09/05 17:03:21 [error] 3249#0: *1461 connect() failed (111: Connection refused) while connecting to upstream, client: xxx.xxx.xxx.xxx, server: , request: &quot;HEAD / HTTP/1.1&quot;, upstream: &quot;http://124.193.205.181:80/&quot;, host: &quot;代理地址:端口&quot;</span><br><span class="line">2022/09/05 17:03:33 [error] 3249#0: *1461 connect() failed (111: Connection refused) while connecting to upstream, client: xxx.xxx.xxx.xxx, server: , request: &quot;HEAD / HTTP/1.1&quot;, upstream: &quot;http://124.193.205.179:80/&quot;, host: &quot;代理地址:端口&quot;</span><br></pre></td></tr></table></figure>
+
+<p>可以所见每次跳转的地址，经查所有不通的ip地址皆是来自鹏博士，后通过在nginx服务器上ping阿里云的Pypi地址，发现也是如此，偶尔会有无法ping通的，无法ping通的ip地址也是属于鹏博士，所以经过网络老师判断是dns解析问题</p>
+<h3 id="解决方法-1"><a href="#解决方法-1" class="headerlink" title="解决方法"></a><strong>解决方法</strong></h3><p>​    1、因DNS问题，所以修改了，系统的DNS（因公司系统使用了NetworkManager，故处理方式不同于使用network）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vi /etc/NetworkManager/NetworkManager.conf 文件，在main部分添加 “dns=none” 选项：</span></span><br><span class="line">[main]</span><br><span class="line">plugins=ifcfg-rh,keyfile</span><br><span class="line">dns=none</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vi  /etc/resolv.conf 把下边的2个nameserver改成互联网DNS</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Generated by NetworkManager</span></span><br><span class="line">nameserver 202.106.0.20</span><br><span class="line">nameserver 114.114.114.114</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重启网络服务</span></span><br><span class="line">systemctl restart NetworkManager </span><br></pre></td></tr></table></figure>
+
+<p>​    2、修改系统DNS后依然没有生效，原因是因为nginx的配置文件中也配置了指定的DNS地址，所以修改后的完整Nginx配置文件是</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span> &#123;</span><br><span class="line">         <span class="string">listen</span>    <span class="string">端口;</span></span><br><span class="line">         <span class="comment"># 原有DNS是114.114.114.114</span></span><br><span class="line">         <span class="string">resolver</span> <span class="number">202.106</span><span class="number">.0</span><span class="number">.20</span> <span class="string">ipv6=off;</span></span><br><span class="line">         <span class="string">proxy_connect;</span></span><br><span class="line">         <span class="string">location</span> <span class="string">/</span> &#123;</span><br><span class="line">         <span class="string">index</span> <span class="string">index.html</span> <span class="string">index.htm;</span></span><br><span class="line">         <span class="string">proxy_pass</span> <span class="string">http://mirrors.aliyun.com/pypi/;</span></span><br><span class="line">         <span class="string">proxy_set_header</span> <span class="string">X-Real-IP</span> <span class="string">$remote_addr;</span></span><br><span class="line">         <span class="string">proxy_set_header</span> <span class="string">X-Forwarded-For</span> <span class="string">$remote_addr;</span></span><br><span class="line">         <span class="string">proxy_set_header</span> <span class="string">Host</span> <span class="string">&#x27;mirrors.aliyun.com&#x27;</span><span class="string">;</span></span><br><span class="line">         <span class="string">proxy_ssl_session_reuse</span> <span class="string">off;</span></span><br><span class="line">         <span class="string">proxy_buffers</span> <span class="number">256</span> <span class="string">4k;</span></span><br><span class="line">         <span class="string">proxy_max_temp_file_size</span> <span class="string">0k;</span></span><br><span class="line">         <span class="string">proxy_connect_timeout</span> <span class="number">60</span><span class="string">;</span></span><br><span class="line">         <span class="string">proxy_send_timeout</span> <span class="number">60</span><span class="string">;</span></span><br><span class="line">         <span class="string">proxy_read_timeout</span> <span class="number">60</span><span class="string">;</span></span><br><span class="line"></span><br><span class="line">         <span class="string">rewrite</span> <span class="string">/(.*)</span> <span class="string">/$1</span> <span class="string">break;</span></span><br><span class="line">         &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://t-fx.github.io">A二十一画</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://t-fx.github.io/article/81ec41b0.html">https://t-fx.github.io/article/81ec41b0.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用'<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>'许可协议。转载请注明来自<a href="https://t-fx.github.io">A二十一画</a>!</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://only-picture.oss-cn-beijing.aliyuncs.com/images/hexo-favicon.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/article/undefined.html" title="DNS解析系统运维指南操作说明"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">DNS解析系统运维指南操作说明</div></div></a></div><div class="next-post pull-right"><a href="/article/4a17b156.html" title="Hello World"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Hello World</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://only-picture.oss-cn-beijing.aliyuncs.com/images/hexo-favicon.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">A二十一画</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/T-FX"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">给你更新</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%AD%A3%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">正向代理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9ANginx%E4%BB%A3%E7%90%86%E6%97%A5%E5%BF%97%E4%B8%AD%E5%87%BA%E7%8E%B0%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6"><span class="toc-number">1.1.</span> <span class="toc-text">问题：Nginx代理日志中出现十六进制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.1.1.</span> <span class="toc-text">问题描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E6%9F%A5%E8%BF%87%E7%A8%8B"><span class="toc-number">1.1.2.</span> <span class="toc-text">排查过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.3.</span> <span class="toc-text">解决方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E4%BB%A3%E7%90%86Pypi%E6%BA%90%E6%97%A0%E6%B3%95%E5%AE%89%E8%A3%85Python%E6%A8%A1%E5%9D%97"><span class="toc-number">1.2.</span> <span class="toc-text">问题：代理Pypi源无法安装Python模块</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0-1"><span class="toc-number">1.2.1.</span> <span class="toc-text">问题描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E6%9F%A5%E8%BF%87%E7%A8%8B-1"><span class="toc-number">1.2.2.</span> <span class="toc-text">排查过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95-1"><span class="toc-number">1.2.3.</span> <span class="toc-text">解决方法</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/article/undefined.html" title="DNS解析系统运维指南操作说明">DNS解析系统运维指南操作说明</a><time datetime="2023-03-02T08:21:46.000Z" title="创建时间 2023-03-02 16:21:46">2023-03-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/article/81ec41b0.html" title="Nginx经验积累">Nginx经验积累</a><time datetime="2023-03-02T07:23:51.000Z" title="创建时间 2023-03-02 15:23:51">2023-03-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/article/4a17b156.html" title="Hello World">Hello World</a><time datetime="2023-03-02T06:42:00.305Z" title="创建时间 2023-03-02 14:42:00">2023-03-02</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By A二十一画</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

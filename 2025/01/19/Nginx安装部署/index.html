@@ -4,8 +4,10 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Hello World, Hexo">
-    <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hex">
+    <meta name="keywords" content="Nginx安装部署, Hexo">
+    <meta name="description" content="(学习记录一下)
+Yum安装1、添加Nginx源
+[root@localhost ~]# rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-cento">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +19,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Hello World | Hexo</title>
+    <title>Nginx安装部署 | Hexo</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -336,12 +338,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/12.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/0.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Hello World</h1>
+                    <h1 class="description center-align post-title">Nginx安装部署</h1>
                 </div>
             </div>
         </div>
@@ -398,19 +400,80 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo new <span class="token string">"My New Post"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+                <p>(学习记录一下)</p>
+<h2 id="Yum安装"><a href="#Yum安装" class="headerlink" title="Yum安装"></a>Yum安装</h2><p>1、添加Nginx源</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo server<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>2、安装Nginx</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># yum -y install nginx		</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo generate<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h2><p>1、安装相关依赖包</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># nginx的正则rewrite会使用pcre; gzip会使用zlib，ssl会使用openssl</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># yum -y install pcre-devel zlib-devel openssl-devel gcc*</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ hexo deploy<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>2、创建Nginx用户</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># useradd -M -s /sbin/nologin nginx</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<p>3、编译安装</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># tar -zxvf nginx-1.21.5.tar.gz</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># cd nginx-1.21.5</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># ./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_ssl_module </span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># make &amp;&amp; make install</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>--prefix 指定 Nginx 的安装目录</p>
+<p>--user 和 –group 指定 Nginx 运行用户和组</p>
+<p>--with-http_stub_status_module 启动 http_stub_status_module模块支持状态统计</p>
+<p>--with-http_ssl_module 支持https的ssl加密</p>
+</blockquote>
+<h2 id="平滑升级-添加模块"><a href="#平滑升级-添加模块" class="headerlink" title="平滑升级&#x2F;添加模块"></a>平滑升级&#x2F;添加模块</h2><p>查看当前版本&#x2F;当前模块</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># nginx -V</span>
+nginx version: nginx/1.21.5
+built by gcc <span class="token number">4.8</span>.5 <span class="token number">20150623</span> <span class="token punctuation">(</span>Red Hat <span class="token number">4.8</span>.5-44<span class="token punctuation">)</span> <span class="token punctuation">(</span>GCC<span class="token punctuation">)</span> 
+built with OpenSSL <span class="token number">1.0</span>.2k-fips  <span class="token number">26</span> Jan <span class="token number">2017</span>
+TLS SNI support enabled
+configure arguments: <span class="token parameter variable">--prefix</span><span class="token operator">=</span>/usr/local/nginx --with-http_ssl_module<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>1、重新编译Nginx</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># cd nginx-1.21.5</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># tar -zxvf nginx-1.21.5.tar.gz</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># ./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_stub_status_module</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># make</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>2、替换原有nginx二进制文件</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># cp -a /usr/local/nginx/sbin/nginx /usr/local/nginx/sbin/nginx.bak</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># cp -a nginx-1.21.5/objs/nginx /usr/local/nginx/sbin/nginx</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>3、发送USR2信号，Nginx会启动一个新版本的master进程</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># ps -aux | grep nginx</span>
+root      <span class="token number">34665</span>  <span class="token number">0.0</span>  <span class="token number">0.0</span>  <span class="token number">46008</span>  <span class="token number">1132</span> ?        Ss   <span class="token number">17</span>:27   <span class="token number">0</span>:00 nginx: master process /usr/local/nginx/sbin/nginx
+nobody    <span class="token number">34667</span>  <span class="token number">0.0</span>  <span class="token number">1.5</span>  <span class="token number">75228</span> <span class="token number">28628</span> ?        S    <span class="token number">17</span>:27   <span class="token number">0</span>:00 nginx: worker process
+root      <span class="token number">34718</span>  <span class="token number">0.0</span>  <span class="token number">0.0</span> <span class="token number">112824</span>   <span class="token number">976</span> pts/9    R+   <span class="token number">17</span>:28   <span class="token number">0</span>:00 <span class="token function">grep</span> <span class="token parameter variable">--color</span><span class="token operator">=</span>auto nginx
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># kill -USR2 34665</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># ps -aux | grep nginx</span>
+root      <span class="token number">34665</span>  <span class="token number">0.0</span>  <span class="token number">0.0</span>  <span class="token number">46008</span>  <span class="token number">1320</span> ?        Ss   <span class="token number">17</span>:27   <span class="token number">0</span>:00 nginx: master process /usr/local/nginx/sbin/nginx
+nobody    <span class="token number">34667</span>  <span class="token number">0.0</span>  <span class="token number">1.5</span>  <span class="token number">75228</span> <span class="token number">28628</span> ?        S    <span class="token number">17</span>:27   <span class="token number">0</span>:00 nginx: worker process
+root      <span class="token number">34719</span>  <span class="token number">0.0</span>  <span class="token number">0.1</span>  <span class="token number">45996</span>  <span class="token number">3312</span> ?        S    <span class="token number">17</span>:29   <span class="token number">0</span>:00 nginx: master process /usr/local/nginx/sbin/nginx
+nobody    <span class="token number">34720</span>  <span class="token number">0.0</span>  <span class="token number">1.5</span>  <span class="token number">75216</span> <span class="token number">28644</span> ?        S    <span class="token number">17</span>:29   <span class="token number">0</span>:00 nginx: worker process
+root      <span class="token number">34722</span>  <span class="token number">0.0</span>  <span class="token number">0.0</span> <span class="token number">112824</span>   <span class="token number">980</span> pts/9    R+   <span class="token number">17</span>:29   <span class="token number">0</span>:00 <span class="token function">grep</span> <span class="token parameter variable">--color</span><span class="token operator">=</span>auto nginx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>4、向旧的Nginx主进程（master）发送WINCH信号，它会逐步关闭自己的工作进程（主进程不退出），这时所有请求都会由新版Nginx处理</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># kill -WINCH 34665</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># ps -aux | grep nginx</span>
+root      <span class="token number">34665</span>  <span class="token number">0.0</span>  <span class="token number">0.0</span>  <span class="token number">46008</span>  <span class="token number">1320</span> ?        Ss   <span class="token number">17</span>:27   <span class="token number">0</span>:00 nginx: master process /usr/local/nginx/sbin/nginx
+root      <span class="token number">34719</span>  <span class="token number">0.0</span>  <span class="token number">0.1</span>  <span class="token number">45996</span>  <span class="token number">3312</span> ?        S    <span class="token number">17</span>:29   <span class="token number">0</span>:00 nginx: master process /usr/local/nginx/sbin/nginx
+nobody    <span class="token number">34720</span>  <span class="token number">0.0</span>  <span class="token number">1.5</span>  <span class="token number">75216</span> <span class="token number">28644</span> ?        S    <span class="token number">17</span>:29   <span class="token number">0</span>:00 nginx: worker process
+root      <span class="token number">34726</span>  <span class="token number">0.0</span>  <span class="token number">0.0</span> <span class="token number">112824</span>   <span class="token number">980</span> pts/9    R+   <span class="token number">17</span>:29   <span class="token number">0</span>:00 <span class="token function">grep</span> <span class="token parameter variable">--color</span><span class="token operator">=</span>auto nginx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>5、发送QUIT信息</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># kill -QUIT 34665</span>
+<span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># ps -aux | grep nginx</span>
+root      <span class="token number">34719</span>  <span class="token number">0.0</span>  <span class="token number">0.1</span>  <span class="token number">45996</span>  <span class="token number">3312</span> ?        S    <span class="token number">17</span>:29   <span class="token number">0</span>:00 nginx: master process /usr/local/nginx/sbin/nginx
+nobody    <span class="token number">34720</span>  <span class="token number">0.0</span>  <span class="token number">1.5</span>  <span class="token number">75216</span> <span class="token number">28644</span> ?        S    <span class="token number">17</span>:29   <span class="token number">0</span>:00 nginx: worker process
+root      <span class="token number">34734</span>  <span class="token number">0.0</span>  <span class="token number">0.0</span> <span class="token number">112824</span>   <span class="token number">980</span> pts/9    R+   <span class="token number">17</span>:30   <span class="token number">0</span>:00 <span class="token function">grep</span> <span class="token parameter variable">--color</span><span class="token operator">=</span>auto nginx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>6、如果需要回滚，发送HUP信号（在第5步之前操作）</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@localhost ~<span class="token punctuation">]</span><span class="token comment"># kill -HUP 34665</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
                 
             </div>
@@ -437,7 +500,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://example.com/2025/01/19/hello-world/">http://example.com/2025/01/19/hello-world/</a>
+                    <a href="http://example.com/2025/01/19/Nginx%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/">http://example.com/2025/01/19/Nginx%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -551,9 +614,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+                <i class="far fa-dot-circle"></i>&nbsp;Current
+            </div>
             <div class="card">
                 <a href="/2025/01/19/Nginx%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/">
                     <div class="card-image">
@@ -571,9 +635,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2025-01-19
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-01-19
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-user fa-fw"></i>
@@ -582,6 +646,7 @@
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -589,7 +654,7 @@
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge right-badge text-color">
-                Current&nbsp;<i class="far fa-dot-circle"></i>
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
                 <a href="/2025/01/19/hello-world/">
@@ -619,7 +684,6 @@
                         </span>
                     </div>
                 </div>
-
                 
             </div>
         </div>
